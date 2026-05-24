@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TCCL Club League Auction</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050a10;
+    --surface: #0b1520;
+    --surface2: #0f1e2e;
+    --gold: #f0c040;
+    --gold2: #e8a800;
+    --cyan: #00e5ff;
+    --green: #00ff88;
+    --red: #ff3c5a;
+    --text: #e8eef5;
+    --muted: #6a8099;
+    --border: rgba(0,229,255,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Rajdhani', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Starfield bg */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse at 20% 50%, rgba(0,229,255,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 20%, rgba(240,192,64,0.04) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ===== HEADER ===== */
+  header {
+    position: relative;
+    text-align: center;
+    padding: 28px 20px 18px;
+    border-bottom: 1px solid var(--border);
+    background: linear-gradient(180deg, rgba(0,229,255,0.05) 0%, transparent 100%);
+    z-index: 10;
+  }
+  .sport-icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 16px;
+  }
+  .sport-icon {
+    width: 58px; height: 58px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.8rem;
+    border: 2px solid var(--border);
+    background: var(--surface);
+    position: relative;
+    animation: floatIcon 3s ease-in-out infinite;
+  }
+  .sport-icon:nth-child(1) { animation-delay: 0s;   border-color: rgba(240,192,64,0.5); box-shadow: 0 0 14px rgba(240,192,64,0.15); }
+  .sport-icon:nth-child(2) { animation-delay: 0.4s; border-color: rgba(0,229,255,0.5);  box-shadow: 0 0 14px rgba(0,229,255,0.15); }
+  .sport-icon:nth-child(3) { animation-delay: 0.8s; border-color: rgba(0,255,136,0.5);  box-shadow: 0 0 14px rgba(0,255,136,0.15); }
+  .sport-icon:nth-child(4) { animation-delay: 1.2s; border-color: rgba(255,60,90,0.5);  box-shadow: 0 0 14px rgba(255,60,90,0.15); }
+  .sport-icon .label {
+    position: absolute;
+    bottom: -18px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.42rem;
+    letter-spacing: 1px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+  @keyframes floatIcon {
+    0%,100% { transform: translateY(0); }
+    50%      { transform: translateY(-6px); }
+  }
+  header h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.4rem, 6vw, 4.2rem);
+    letter-spacing: 6px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--cyan) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1;
+  }
+  header p {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 4px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  /* ===== NAV ===== */
+  nav {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 20px;
+    border-bottom: 1px solid var(--border);
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 10;
+  }
+  nav button {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 2px;
+    padding: 8px 20px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+  }
+  nav button:hover, nav button.active {
+    border-color: var(--cyan);
+    color: var(--cyan);
+    background: rgba(0,229,255,0.06);
+  }
+
+  /* ===== VIEWS ===== */
+  .view { display: none; padding: 30px 20px; max-width: 1100px; margin: 0 auto; position: relative; z-index: 5; }
+  .view.active { display: block; }
+
+  /* ===== SECTION TITLE ===== */
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 4px;
+    color: var(--cyan);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, var(--border), transparent);
+  }
+
+  /* ===== FORM ===== */
+  .form-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 14px; margin-bottom: 20px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group label {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+  .form-group input, .form-group select {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 3px;
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--cyan); }
+  .form-group select option { background: #0b1520; }
+
+  /* ===== BUTTONS ===== */
+  .btn {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    padding: 11px 28px;
+    border-radius: 3px;
+    cursor: pointer;
+    border: none;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .btn-primary { background: linear-gradient(135deg, var(--gold2), var(--gold)); color: #050a10; font-weight: 700; }
+  .btn-primary:hover { filter: brightness(1.15); transform: translateY(-1px); }
+  .btn-secondary { background: transparent; border: 1px solid var(--cyan); color: var(--cyan); }
+  .btn-secondary:hover { background: rgba(0,229,255,0.08); }
+  .btn-danger { background: transparent; border: 1px solid var(--red); color: var(--red); font-size: 0.6rem; padding: 6px 14px; }
+  .btn-danger:hover { background: rgba(255,60,90,0.1); }
+  .btn-green { background: linear-gradient(135deg, #009955, var(--green)); color: #050a10; font-weight: 700; }
+  .btn-green:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+  /* ===== PLAYER TABLE ===== */
+  .table-wrap { overflow-x: auto; border-radius: 4px; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; }
+  thead tr { background: var(--surface2); }
+  th {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    color: var(--muted);
+    padding: 12px 16px;
+    text-align: left;
+    white-space: nowrap;
+  }
+  td { padding: 11px 16px; font-size: 0.95rem; font-weight: 500; border-top: 1px solid rgba(255,255,255,0.04); white-space: nowrap; }
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background: rgba(0,229,255,0.04); }
+  .role-badge {
+    font-size: 0.65rem;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    white-space: nowrap;
+  }
+  .role-bat { background: rgba(240,192,64,0.15); color: var(--gold); border: 1px solid rgba(240,192,64,0.3); }
+  .role-bowl { background: rgba(255,60,90,0.12); color: var(--red); border: 1px solid rgba(255,60,90,0.3); }
+  .role-ar { background: rgba(0,255,136,0.12); color: var(--green); border: 1px solid rgba(0,255,136,0.3); }
+  .role-wk { background: rgba(0,229,255,0.12); color: var(--cyan); border: 1px solid rgba(0,229,255,0.3); }
+
+  .price-cell { color: var(--gold); font-family: 'Orbitron', sans-serif; font-size: 0.8rem; }
+  .sold-row td { opacity: 0.45; }
+  .sold-tag {
+    font-size: 0.6rem;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: rgba(0,255,136,0.12);
+    color: var(--green);
+    border: 1px solid rgba(0,255,136,0.3);
+  }
+  .unsold-tag {
+    font-size: 0.6rem;
+    font-family: 'Orbitron', sans-serif;
+    letter-spacing: 1px;
+    padding: 3px 9px;
+    border-radius: 20px;
+    background: rgba(255,60,90,0.1);
+    color: var(--red);
+    border: 1px solid rgba(255,60,90,0.3);
+  }
+
+  /* ===== AUCTION STAGE ===== */
+  .auction-wrap {
+    display: grid;
+    grid-template-columns: 1fr 320px;
+    gap: 24px;
+    align-items: start;
+  }
+  @media(max-width:780px) { .auction-wrap { grid-template-columns: 1fr; } }
+
+  .spotlight {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 30px;
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+  }
+  .spotlight::before {
+    content: '';
+    position: absolute;
+    top: -60px; left: 50%;
+    transform: translateX(-50%);
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(240,192,64,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .player-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    line-height: 1;
+    background: linear-gradient(135deg, var(--gold) 0%, #ff9900 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .player-name-big {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.4rem);
+    letter-spacing: 4px;
+    color: var(--text);
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .player-meta {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .meta-chip {
+    font-size: 0.75rem;
+    font-family: 'Rajdhani', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    padding: 4px 12px;
+    border-radius: 3px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+
+  .base-price-display {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.6rem;
+    color: var(--gold);
+    margin: 10px 0 22px;
+  }
+  .base-price-display span { font-size: 0.75rem; display: block; color: var(--muted); letter-spacing: 2px; margin-bottom: 4px; }
+
+  .spotlight-idle {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-align: center;
+  }
+
+  /* Flasher animation */
+  @keyframes flashSlot {
+    0%   { opacity: 1; transform: translateY(0); }
+    50%  { opacity: 0.2; transform: translateY(-6px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  .flashing .player-name-big { animation: flashSlot 0.12s infinite; }
+
+  @keyframes revealIn {
+    from { opacity:0; transform: scale(0.88) translateY(20px); }
+    to   { opacity:1; transform: scale(1) translateY(0); }
+  }
+  .revealed { animation: revealIn 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+
+  /* Bid controls */
+  .bid-row {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin-top: 6px;
+  }
+  .bid-row input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 14px;
+    border-radius: 3px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.85rem;
+    width: 160px;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  .bid-row input:focus { border-color: var(--gold); }
+
+  /* Teams sidebar */
+  .teams-panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 20px;
+  }
+  .teams-panel h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    letter-spacing: 3px;
+    color: var(--muted);
+    margin-bottom: 16px;
+  }
+  .team-item {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .team-item:hover { border-color: rgba(0,229,255,0.4); }
+  .team-item.selected { border-color: var(--cyan); background: rgba(0,229,255,0.05); }
+  .team-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 2px; }
+  .team-budget {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.65rem;
+    color: var(--gold);
+  }
+  .team-count { font-size: 0.75rem; color: var(--muted); margin-top: 2px; }
+
+  /* ===== RESULTS ===== */
+  .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+  .result-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    padding: 20px;
+  }
+  .result-card h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.3rem;
+    letter-spacing: 3px;
+    color: var(--cyan);
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+  }
+  .result-player-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    font-size: 0.9rem;
+  }
+  .result-player-row:last-child { border-bottom: none; }
+
+  /* ===== TOASTS ===== */
+  #toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 12px 28px;
+    border-radius: 4px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 2px;
+    z-index: 9999;
+    transition: transform 0.3s;
+    pointer-events: none;
+  }
+  #toast.show { transform: translateX(-50%) translateY(0); }
+  #toast.success { border-color: var(--green); color: var(--green); }
+  #toast.error { border-color: var(--red); color: var(--red); }
+
+  /* ===== STATS BAR ===== */
+  .stats-bar {
+    display: flex;
+    gap: 0;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 24px;
+  }
+  .stat-box {
+    flex: 1;
+    text-align: center;
+    padding: 14px 10px;
+    border-right: 1px solid var(--border);
+  }
+  .stat-box:last-child { border-right: none; }
+  .stat-val {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--cyan);
+    line-height: 1;
+  }
+  .stat-lbl { font-size: 0.65rem; color: var(--muted); letter-spacing: 1px; margin-top: 4px; }
+
+  /* Misc */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--muted); font-size: 0.9rem; letter-spacing: 2px; font-family: 'Orbitron', sans-serif; }
+
+  .pulse-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    animation: pulse 1.4s ease-in-out infinite;
+    margin-right: 6px;
+  }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.6)} }
+
+  .hammer-icon { font-size: 2rem; margin-bottom: 10px; }
+
+  /* ===== LIVE INDICATOR ===== */
+  #liveBar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 9999;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.6rem;
+    letter-spacing: 2px;
+    text-align: center;
+    padding: 5px;
+    transition: all 0.4s;
+  }
+  #liveBar.connecting { background: rgba(240,192,64,0.15); color: var(--gold); border-bottom: 1px solid rgba(240,192,64,0.3); }
+  #liveBar.connected  { background: rgba(0,255,136,0.1);  color: var(--green); border-bottom: 1px solid rgba(0,255,136,0.25); }
+  #liveBar.offline    { background: rgba(255,60,90,0.15);  color: var(--red);   border-bottom: 1px solid rgba(255,60,90,0.3); }
+  #liveBar .live-dot {
+    display: inline-block; width: 7px; height: 7px;
+    border-radius: 50%; margin-right: 7px;
+    background: currentColor;
+    animation: pulse 1.4s ease-in-out infinite;
+  }
+  body { padding-top: 28px; }
+</style>
+
+<!-- ===== FIREBASE SDK ===== -->
+<script type="module">
+  import { initializeApp }          from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getDatabase, ref, set, onValue, get }
+                                    from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+
+  // ──────────────────────────────────────────────
+  // 🔧 PASTE YOUR FIREBASE CONFIG HERE
+  // ──────────────────────────────────────────────
+  const firebaseConfig = {
+    apiKey: "AIzaSyBABZ-4oISplsvDGcYPYyU9TFFInNUZuvA",
+    authDomain: "tccl-auction.firebaseapp.com",
+    databaseURL: "https://tccl-auction-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "tccl-auction",
+    storageBucket: "tccl-auction.firebasestorage.app",
+    messagingSenderId: "966424912802",
+    appId: "1:966424912802:web:00dc61fa2296fd8c8508fb"
+  };
+  // ──────────────────────────────────────────────
+
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  const playersRef = ref(db, 'players');
+  const teamsRef   = ref(db, 'teams');
+
+  // Live bar
+  function setBar(state, msg) {
+    const bar = document.getElementById('liveBar');
+    bar.className = state;
+    bar.innerHTML = `<span class="live-dot"></span>${msg}`;
+  }
+
+  // ── Save helpers ──
+  window._fbSavePlayers = () => set(playersRef, window.players);
+  window._fbSaveTeams   = () => set(teamsRef,   window.teams);
+  window._fbSave = () => Promise.all([window._fbSavePlayers(), window._fbSaveTeams()]);
+
+  // ── Bootstrap: load once, then listen for live updates ──
+  setBar('connecting', 'CONNECTING TO FIREBASE...');
+
+  get(playersRef).then(snap => {
+    window.players = snap.val() || [];
+    get(teamsRef).then(snap2 => {
+      window.teams = snap2.val() || [];
+      setBar('connected', 'LIVE — ALL CHANGES SYNC IN REAL TIME');
+      window.renderPlayers();
+      window.renderTeams();
+      window.updateProgress();
+
+      // Now subscribe for live updates from other users
+      onValue(playersRef, s => {
+        window.players = s.val() || [];
+        window.renderPlayers();
+        window.updateProgress();
+        const v = document.querySelector('.view.active');
+        if (v && v.id === 'view-auction') window.renderAuction();
+        if (v && v.id === 'view-results') window.renderResults();
+      });
+      onValue(teamsRef, s => {
+        window.teams = s.val() || [];
+        window.renderTeams();
+        window.renderAuction();
+        const v = document.querySelector('.view.active');
+        if (v && v.id === 'view-results') window.renderResults();
+      });
+    });
+  }).catch(() => {
+    setBar('offline', 'FIREBASE OFFLINE — CHECK YOUR CONFIG');
+  });
+</script>
+</head>
+<body>
+<div id="liveBar" class="connecting"><span class="live-dot"></span>CONNECTING TO FIREBASE...</div>
+
+<header>
+  <div class="sport-icons">
+    <div class="sport-icon">🏏<span class="label">CRICKET</span></div>
+    <div class="sport-icon">🏸<span class="label">BADMINTON</span></div>
+    <div class="sport-icon">⚽<span class="label">FOOTBALL</span></div>
+    <div class="sport-icon">🏃<span class="label">ATHLETICS</span></div>
+  </div>
+  <h1>TCCL Club League</h1>
+  <p>Official Player Auction System</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showView('players')">Players</button>
+  <button onclick="showView('teams')">Teams</button>
+  <button onclick="showView('auction')">Auction Stage</button>
+  <button onclick="showView('results')">Results</button>
+</nav>
+
+<!-- =================== PLAYERS VIEW =================== -->
+<div id="view-players" class="view active">
+  <div class="section-title">Register Players</div>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Player Name *</label>
+      <input type="text" id="pName" placeholder="e.g. Virat Kohli">
+    </div>
+    <div class="form-group">
+      <label>Age</label>
+      <input type="number" id="pAge" placeholder="25" min="14" max="50">
+    </div>
+    <div class="form-group">
+      <label>Role *</label>
+      <select id="pRole">
+        <option value="">Select Role</option>
+        <option value="Batsman">Batsman</option>
+        <option value="Bowler">Bowler</option>
+        <option value="All-Rounder">All-Rounder</option>
+        <option value="Wicket-Keeper">Wicket-Keeper</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Batting Style</label>
+      <select id="pBatStyle">
+        <option value="">—</option>
+        <option value="Right-hand bat">Right-hand bat</option>
+        <option value="Left-hand bat">Left-hand bat</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Bowling Style</label>
+      <select id="pBowlStyle">
+        <option value="">—</option>
+        <option value="Right-arm fast">Right-arm fast</option>
+        <option value="Left-arm fast">Left-arm fast</option>
+        <option value="Right-arm off-spin">Right-arm off-spin</option>
+        <option value="Left-arm spin">Left-arm spin</option>
+        <option value="Leg-spin">Leg-spin</option>
+        <option value="N/A">N/A</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Base Price (₹ Lakhs) *</label>
+      <input type="number" id="pBase" placeholder="20" min="5">
+    </div>
+    <div class="form-group">
+      <label>Nationality</label>
+      <input type="text" id="pNat" placeholder="India">
+    </div>
+    <div class="form-group">
+      <label>Category</label>
+      <select id="pCat">
+        <option value="Uncapped">Uncapped</option>
+        <option value="Capped">Capped</option>
+        <option value="Overseas">Overseas</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Last Year Runs</label>
+      <input type="number" id="pRuns" placeholder="e.g. 540" min="0">
+    </div>
+    <div class="form-group">
+      <label>Last Year Wickets</label>
+      <input type="number" id="pWickets" placeholder="e.g. 12" min="0">
+    </div>
+  </div>
+
+  <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:30px;">
+    <button class="btn btn-primary" onclick="addPlayer()">＋ Add Player</button>
+  </div>
+
+  <div class="section-title">Player Pool</div>
+  <div id="playerStats" class="stats-bar"></div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Name</th>
+          <th>Age</th>
+          <th>Role</th>
+          <th>Category</th>
+          <th>Nationality</th>
+          <th>Base Price</th>
+          <th>Last Yr Runs</th>
+          <th>Last Yr Wkts</th>
+          <th>Status</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="playerTableBody"></tbody>
+    </table>
+  </div>
+  <div id="playerEmpty" class="empty-state" style="display:none">No players registered yet</div>
+</div>
+
+<!-- =================== TEAMS VIEW =================== -->
+<div id="view-teams" class="view">
+  <div class="section-title">Register Teams</div>
+
+  <div class="form-grid">
+    <div class="form-group">
+      <label>Team Name *</label>
+      <input type="text" id="tName" placeholder="e.g. Mumbai Indians">
+    </div>
+    <div class="form-group">
+      <label>Mentor</label>
+      <input type="text" id="tMentor" placeholder="Mentor name">
+    </div>
+    <div class="form-group">
+      <label>Manager</label>
+      <input type="text" id="tManager" placeholder="Manager name">
+    </div>
+    <div class="form-group">
+      <label>Budget (₹ Lakhs) *</label>
+      <input type="number" id="tBudget" placeholder="500" min="50">
+    </div>
+    <div class="form-group">
+      <label>Max Players</label>
+      <input type="number" id="tMax" placeholder="15" min="5" max="25">
+    </div>
+  </div>
+
+  <div style="margin-bottom:30px;">
+    <button class="btn btn-primary" onclick="addTeam()">＋ Register Team</button>
+  </div>
+
+  <div class="section-title">Registered Teams</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Team Name</th>
+          <th>Mentor</th>
+          <th>Manager</th>
+          <th>Budget (₹L)</th>
+          <th>Remaining (₹L)</th>
+          <th>Players Bought</th>
+          <th>Max</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody id="teamTableBody"></tbody>
+    </table>
+  </div>
+  <div id="teamEmpty" class="empty-state" style="display:none">No teams registered yet</div>
+</div>
+
+<!-- =================== AUCTION VIEW =================== -->
+<div id="view-auction" class="view">
+  <div class="section-title">Auction Stage</div>
+
+  <div class="auction-wrap">
+    <!-- Spotlight -->
+    <div>
+      <div class="spotlight" id="spotlight">
+        <div class="spotlight-idle" id="idleMsg">
+          <div style="font-size:3rem;margin-bottom:12px;">🎰</div>
+          <div>PRESS DRAW TO START</div>
+          <div style="font-size:0.55rem;margin-top:8px;color:var(--muted)">A RANDOM PLAYER WILL BE SELECTED FOR BIDDING</div>
+        </div>
+        <div id="playerCard" style="display:none; width:100%;">
+          <div class="player-number" id="cardNum"></div>
+          <div class="player-name-big" id="cardName"></div>
+          <div class="player-meta" id="cardMeta"></div>
+          <div id="cardPerf"></div>
+          <div class="base-price-display"><span>BASE PRICE</span><span id="cardPrice"></span></div>
+          <div class="bid-row" id="bidRow" style="display:none">
+            <input type="number" id="bidAmount" placeholder="Enter bid (₹L)" min="1">
+            <button class="btn btn-primary" onclick="confirmSell()">🔨 SOLD</button>
+            <button class="btn btn-danger" onclick="markUnsold()">UNSOLD</button>
+          </div>
+          <div id="resultMsg" style="margin-top:16px; font-family:'Orbitron',sans-serif; font-size:0.8rem; letter-spacing:2px;"></div>
+        </div>
+      </div>
+
+      <div style="display:flex; gap:10px; justify-content:center; margin-top:18px; flex-wrap:wrap;">
+        <button class="btn btn-primary" id="drawBtn" onclick="drawPlayer()">🎲 DRAW PLAYER</button>
+        <button class="btn btn-secondary" id="auctionResetBtn" onclick="resetAuction()">↺ RESET AUCTION</button>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="margin-top:20px; background:var(--surface); border:1px solid var(--border); border-radius:4px; padding:16px;">
+        <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--muted); font-family:'Orbitron',sans-serif; letter-spacing:1px; margin-bottom:8px;">
+          <span>AUCTION PROGRESS</span>
+          <span id="progressText">0 / 0</span>
+        </div>
+        <div style="background:var(--surface2); border-radius:2px; height:6px; overflow:hidden;">
+          <div id="progressBar" style="height:100%; width:0%; background:linear-gradient(90deg,var(--gold2),var(--gold)); border-radius:2px; transition:width 0.5s;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Teams panel -->
+    <div class="teams-panel">
+      <h3>SELECT BUYING TEAM</h3>
+      <div id="auctionTeamsList">
+        <div class="empty-state" style="padding:20px; font-size:0.65rem">No teams registered</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================== RESULTS VIEW =================== -->
+<div id="view-results" class="view">
+  <div class="section-title">Auction Results</div>
+  <div id="resultsSummary" class="stats-bar"></div>
+  <div id="unsoldSection" style="margin-bottom:24px;"></div>
+  <div id="resultsGrid" class="results-grid"></div>
+  <div id="resultsEmpty" class="empty-state" style="display:none">No auction results yet</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ====== STATE (populated by Firebase module above) ======
+window.players = [];
+window.teams   = [];
+let currentPlayer     = null;
+let selectedTeamIndex = -1;
+let flashInterval     = null;
+
+// save() now writes to Firebase instead of localStorage
+function save() {
+  if (window._fbSave) window._fbSave();
+}
+
+// ====== NAVIGATION ======
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + name).classList.add('active');
+  event.target.classList.add('active');
+  if (name === 'players') renderPlayers();
+  if (name === 'teams')   renderTeams();
+  if (name === 'auction') renderAuction();
+  if (name === 'results') renderResults();
+}
+
+// ====== TOAST ======
+function toast(msg, type='') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'show ' + type;
+  setTimeout(() => { t.className = ''; }, 2600);
+}
+
+// ====== PLAYERS ======
+function addPlayer() {
+  const name  = document.getElementById('pName').value.trim();
+  const role  = document.getElementById('pRole').value;
+  const base  = parseFloat(document.getElementById('pBase').value);
+  if (!name) { toast('Player name required', 'error'); return; }
+  if (!role) { toast('Select a role', 'error'); return; }
+  if (!base || base < 1) { toast('Enter valid base price', 'error'); return; }
+
+  window.players.push({
+    id: Date.now(),
+    name, role, base,
+    age:      document.getElementById('pAge').value || '—',
+    batStyle: document.getElementById('pBatStyle').value || '—',
+    bowlStyle:document.getElementById('pBowlStyle').value || '—',
+    nat:      document.getElementById('pNat').value.trim() || 'India',
+    cat:      document.getElementById('pCat').value,
+    runs:     document.getElementById('pRuns').value !== '' ? parseInt(document.getElementById('pRuns').value) : '—',
+    wickets:  document.getElementById('pWickets').value !== '' ? parseInt(document.getElementById('pWickets').value) : '—',
+    status:   'pending',
+    soldTo:   null,
+    soldPrice:null
+  });
+  save();
+  ['pName','pAge','pBase','pNat','pRuns','pWickets'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('pRole').value = '';
+  renderPlayers();
+  toast('Player added ✓', 'success');
+}
+
+function deletePlayer(id) {
+  window.players = window.players.filter(p => p.id !== id);
+  save(); renderPlayers();
+}
+
+window.renderPlayers = function renderPlayers() {
+  const tbody = document.getElementById('playerTableBody');
+  const empty = document.getElementById('playerEmpty');
+  const stats = document.getElementById('playerStats');
+  const players = window.players;
+
+  const pending = players.filter(p => p.status==='pending').length;
+  const sold    = players.filter(p => p.status==='sold').length;
+  const unsold  = players.filter(p => p.status==='unsold').length;
+  stats.innerHTML = `
+    <div class="stat-box"><div class="stat-val">${players.length}</div><div class="stat-lbl">Total</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--muted)">${pending}</div><div class="stat-lbl">Pending</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--green)">${sold}</div><div class="stat-lbl">Sold</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--red)">${unsold}</div><div class="stat-lbl">Unsold</div></div>
+  `;
+
+  if (!players.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  tbody.innerHTML = players.map((p,i) => `
+    <tr class="${p.status==='sold'?'sold-row':''}">
+      <td style="color:var(--muted);font-family:'Orbitron',sans-serif;font-size:0.7rem">${i+1}</td>
+      <td style="font-weight:700">${p.name}</td>
+      <td>${p.age}</td>
+      <td><span class="role-badge ${roleCls(p.role)}">${p.role}</span></td>
+      <td>${p.cat}</td>
+      <td>${p.nat}</td>
+      <td class="price-cell">₹${p.base}L</td>
+      <td>${p.runs !== undefined ? `<span style="color:var(--gold);font-family:'Orbitron',sans-serif;font-size:0.8rem">${p.runs}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td>${p.wickets !== undefined ? `<span style="color:var(--red);font-family:'Orbitron',sans-serif;font-size:0.8rem">${p.wickets}</span>` : '<span style="color:var(--muted)">—</span>'}</td>
+      <td>${statusBadge(p)}</td>
+      <td><button class="btn btn-danger" onclick="deletePlayer(${p.id})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+function roleCls(r) {
+  if (r==='Batsman') return 'role-bat';
+  if (r==='Bowler') return 'role-bowl';
+  if (r==='All-Rounder') return 'role-ar';
+  return 'role-wk';
+}
+function statusBadge(p) {
+  if (p.status==='sold') return `<span class="sold-tag">SOLD — ${p.soldTo}</span>`;
+  if (p.status==='unsold') return `<span class="unsold-tag">UNSOLD</span>`;
+  return `<span style="color:var(--muted);font-size:0.75rem;font-family:'Orbitron',sans-serif">PENDING</span>`;
+}
+
+// ====== TEAMS ======
+function addTeam() {
+  const name   = document.getElementById('tName').value.trim();
+  const budget = parseFloat(document.getElementById('tBudget').value);
+  if (!name) { toast('Team name required', 'error'); return; }
+  if (!budget || budget < 1) { toast('Enter valid budget', 'error'); return; }
+
+  window.teams.push({
+    id: Date.now(),
+    name, budget,
+    mentor:   document.getElementById('tMentor').value.trim() || '—',
+    manager:  document.getElementById('tManager').value.trim() || '—',
+    maxP:     parseInt(document.getElementById('tMax').value) || 15,
+    remaining: budget,
+    bought:   []
+  });
+  save();
+  ['tName','tMentor','tManager','tBudget','tMax'].forEach(id => document.getElementById(id).value = '');
+  renderTeams();  // immediate local render
+  toast('Team registered ✓', 'success');
+}
+
+function deleteTeam(id) {
+  window.teams = window.teams.filter(t => t.id !== id);
+  save(); renderTeams();
+}
+
+window.renderTeams = function renderTeams() {
+  const tbody = document.getElementById('teamTableBody');
+  const empty = document.getElementById('teamEmpty');
+  const teams = window.teams;
+  if (!teams.length) { tbody.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+  tbody.innerHTML = teams.map((t,i) => `
+    <tr>
+      <td style="color:var(--muted);font-family:'Orbitron',sans-serif;font-size:0.7rem">${i+1}</td>
+      <td style="font-weight:700">${t.name}</td>
+      <td>${t.mentor || '—'}</td>
+      <td>${t.manager || '—'}</td>
+      <td class="price-cell">₹${t.budget}L</td>
+      <td class="price-cell" style="color:${t.remaining < t.budget*0.2 ? 'var(--red)' : 'var(--green)'}">₹${t.remaining.toFixed(1)}L</td>
+      <td>${t.bought.length}</td>
+      <td>${t.maxP}</td>
+      <td><button class="btn btn-danger" onclick="deleteTeam(${t.id})">✕</button></td>
+    </tr>
+  `).join('');
+}
+
+// ====== AUCTION ======
+window.renderAuction = function renderAuction() {
+  const list = document.getElementById('auctionTeamsList');
+  const teams = window.teams;
+  if (!teams.length) {
+    list.innerHTML = '<div class="empty-state" style="padding:20px;font-size:0.65rem">No teams registered</div>';
+    return;
+  }
+  list.innerHTML = teams.map((t,i) => `
+    <div class="team-item ${selectedTeamIndex===i?'selected':''}" onclick="selectTeam(${i})">
+      <div class="team-name">${t.name}</div>
+      <div class="team-budget">₹${t.remaining.toFixed(1)}L remaining</div>
+      <div class="team-count">${t.bought.length} / ${t.maxP} players</div>
+    </div>
+  `).join('');
+  updateProgress();
+}
+
+function selectTeam(i) {
+  selectedTeamIndex = i;
+  renderAuction();
+  if (document.getElementById('bidRow').style.display !== 'none') {
+    document.getElementById('bidAmount').placeholder = `Min ₹${currentPlayer.base}L`;
+    document.getElementById('bidAmount').value = '';
+  }
+}
+
+function drawPlayer() {
+  const pool = window.players.filter(p => p.status === 'pending');
+  if (!pool.length) { toast('No players left to auction!', 'error'); return; }
+
+  document.getElementById('bidRow').style.display = 'none';
+  document.getElementById('resultMsg').innerHTML = '';
+  currentPlayer = null;
+
+  const names = pool.map(p => p.name);
+  let i = 0;
+  document.getElementById('idleMsg').style.display = 'none';
+  document.getElementById('playerCard').style.display = 'block';
+  document.getElementById('playerCard').classList.remove('revealed', 'flashing');
+  document.getElementById('playerCard').classList.add('flashing');
+
+  if (flashInterval) clearInterval(flashInterval);
+  flashInterval = setInterval(() => {
+    document.getElementById('cardName').textContent = names[i % names.length];
+    document.getElementById('cardNum').textContent = '#??';
+    document.getElementById('cardMeta').innerHTML = '';
+    document.getElementById('cardPerf').innerHTML = '';
+    document.getElementById('cardPrice').textContent = '???';
+    i++;
+  }, 100);
+
+  setTimeout(() => {
+    clearInterval(flashInterval);
+    const chosen = pool[Math.floor(Math.random() * pool.length)];
+    currentPlayer = chosen;
+    revealPlayer(chosen);
+  }, 2500);
+}
+
+function revealPlayer(p) {
+  const idx = window.players.findIndex(x => x.id === p.id) + 1;
+  document.getElementById('cardNum').textContent = '#' + String(idx).padStart(2,'0');
+  document.getElementById('cardName').textContent = p.name;
+  document.getElementById('cardMeta').innerHTML = `
+    <span class="meta-chip">${p.role}</span>
+    <span class="meta-chip">${p.cat}</span>
+    <span class="meta-chip">${p.nat}</span>
+    <span class="meta-chip">Age ${p.age}</span>
+    ${p.batStyle !== '—' ? `<span class="meta-chip">${p.batStyle}</span>` : ''}
+    ${p.bowlStyle !== '—' && p.bowlStyle !== 'N/A' ? `<span class="meta-chip">${p.bowlStyle}</span>` : ''}
+  `;
+  const hasRuns    = p.runs !== undefined && p.runs !== '—';
+  const hasWickets = p.wickets !== undefined && p.wickets !== '—';
+  const perfBlock  = (hasRuns || hasWickets) ? `
+    <div style="display:flex;gap:14px;justify-content:center;margin-bottom:10px;">
+      ${hasRuns ? `
+        <div style="background:rgba(240,192,64,0.1);border:1px solid rgba(240,192,64,0.3);border-radius:6px;padding:10px 22px;text-align:center;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:700;color:var(--gold);line-height:1">${p.runs}</div>
+          <div style="font-size:0.6rem;letter-spacing:2px;color:var(--muted);margin-top:4px;font-family:'Orbitron',sans-serif">RUNS</div>
+        </div>` : ''}
+      ${hasWickets ? `
+        <div style="background:rgba(255,60,90,0.1);border:1px solid rgba(255,60,90,0.3);border-radius:6px;padding:10px 22px;text-align:center;">
+          <div style="font-family:'Orbitron',sans-serif;font-size:1.4rem;font-weight:700;color:var(--red);line-height:1">${p.wickets}</div>
+          <div style="font-size:0.6rem;letter-spacing:2px;color:var(--muted);margin-top:4px;font-family:'Orbitron',sans-serif">WICKETS</div>
+        </div>` : ''}
+    </div>
+    <div style="font-size:0.55rem;letter-spacing:2px;color:var(--muted);font-family:'Orbitron',sans-serif;margin-bottom:6px;">LAST YEAR PERFORMANCE</div>
+  ` : '';
+  document.getElementById('cardPerf').innerHTML = perfBlock;
+  document.getElementById('cardPrice').textContent = `₹${p.base} Lakhs`;
+
+  const card = document.getElementById('playerCard');
+  card.classList.remove('flashing');
+  card.classList.add('revealed');
+  document.getElementById('bidRow').style.display = 'flex';
+  document.getElementById('bidAmount').placeholder = `Min ₹${p.base}L`;
+  document.getElementById('bidAmount').min = p.base;
+  document.getElementById('bidAmount').value = '';
+}
+
+function confirmSell() {
+  if (!currentPlayer) { toast('Draw a player first', 'error'); return; }
+  if (selectedTeamIndex < 0) { toast('Select a team to buy', 'error'); return; }
+  const bid = parseFloat(document.getElementById('bidAmount').value);
+  if (!bid || bid < currentPlayer.base) {
+    toast(`Bid must be ≥ ₹${currentPlayer.base}L`, 'error'); return;
+  }
+  const team = window.teams[selectedTeamIndex];
+  if (bid > team.remaining) {
+    toast(`${team.name} only has ₹${team.remaining.toFixed(1)}L left`, 'error'); return;
+  }
+  if (team.bought.length >= team.maxP) {
+    toast(`${team.name} already has max players`, 'error'); return;
+  }
+
+  const pi = window.players.findIndex(p => p.id === currentPlayer.id);
+  window.players[pi].status   = 'sold';
+  window.players[pi].soldTo   = team.name;
+  window.players[pi].soldPrice = bid;
+
+  team.remaining -= bid;
+  team.bought.push({ name: currentPlayer.name, price: bid, role: currentPlayer.role });
+
+  save();
+
+  document.getElementById('bidRow').style.display = 'none';
+  document.getElementById('resultMsg').innerHTML = `
+    <div style="color:var(--green)">
+      <span class="pulse-dot"></span>
+      SOLD TO ${team.name.toUpperCase()} FOR ₹${bid}L
+    </div>
+  `;
+  toast(`${currentPlayer.name} → ${team.name} for ₹${bid}L`, 'success');
+  currentPlayer = null;
+  updateProgress();
+  renderAuction();
+}
+
+function markUnsold() {
+  if (!currentPlayer) { toast('Draw a player first', 'error'); return; }
+  const pi = window.players.findIndex(p => p.id === currentPlayer.id);
+  window.players[pi].status = 'unsold';
+  save();
+  document.getElementById('bidRow').style.display = 'none';
+  document.getElementById('resultMsg').innerHTML = `<div style="color:var(--red)">PLAYER MARKED UNSOLD</div>`;
+  toast(`${currentPlayer.name} — UNSOLD`, 'error');
+  currentPlayer = null;
+  updateProgress();
+}
+
+window.updateProgress = function updateProgress() {
+  const done  = window.players.filter(p => p.status !== 'pending').length;
+  const total = window.players.length;
+  document.getElementById('progressText').textContent = `${done} / ${total}`;
+  document.getElementById('progressBar').style.width = total ? (done/total*100)+'%' : '0%';
+}
+
+function resetAuction() {
+  if (!confirm('Reset all auction data? Player statuses will be cleared.')) return;
+  window.players.forEach(p => { p.status='pending'; p.soldTo=null; p.soldPrice=null; });
+  window.teams.forEach(t => { t.remaining=t.budget; t.bought=[]; });
+  save();
+  currentPlayer = null;
+  selectedTeamIndex = -1;
+  document.getElementById('playerCard').style.display = 'none';
+  document.getElementById('idleMsg').style.display = 'block';
+  renderAuction();
+  renderTeams();
+  toast('Auction reset', 'success');
+}
+
+// ====== RESULTS ======
+window.renderResults = function renderResults() {
+  const summary = document.getElementById('resultsSummary');
+  const grid    = document.getElementById('resultsGrid');
+  const empty   = document.getElementById('resultsEmpty');
+  const unsoldSection = document.getElementById('unsoldSection');
+  const players = window.players;
+  const teams   = window.teams;
+
+  const sold   = players.filter(p => p.status==='sold');
+  const unsold = players.filter(p => p.status==='unsold');
+  const totalSpent = sold.reduce((s,p) => s + p.soldPrice, 0);
+
+  summary.innerHTML = `
+    <div class="stat-box"><div class="stat-val" style="color:var(--green)">${sold.length}</div><div class="stat-lbl">Players Sold</div></div>
+    <div class="stat-box"><div class="stat-val" style="color:var(--red)">${unsold.length}</div><div class="stat-lbl">Unsold</div></div>
+    <div class="stat-box"><div class="stat-val">₹${totalSpent.toFixed(0)}L</div><div class="stat-lbl">Total Spent</div></div>
+    <div class="stat-box"><div class="stat-val">${teams.length}</div><div class="stat-lbl">Teams</div></div>
+  `;
+
+  if (unsold.length) {
+    unsoldSection.innerHTML = `
+      <div class="section-title" style="font-size:1.2rem">Unsold Players</div>
+      <div style="display:flex; flex-wrap:wrap; gap:8px;">
+        ${unsold.map(p => `<span class="unsold-tag">${p.name}</span>`).join('')}
+      </div>
+    `;
+  } else { unsoldSection.innerHTML = ''; }
+
+  if (!teams.length && !sold.length) { grid.innerHTML=''; empty.style.display='block'; return; }
+  empty.style.display='none';
+
+  grid.innerHTML = teams.map(t => `
+    <div class="result-card">
+      <h3>${t.name}</h3>
+      <div style="display:flex;justify-content:space-between;font-size:0.75rem;color:var(--muted);margin-bottom:12px;font-family:'Orbitron',sans-serif;letter-spacing:1px;">
+        <span>BUDGET: ₹${t.budget}L</span>
+        <span style="color:${t.remaining < t.budget*0.2?'var(--red)':'var(--green)'}">LEFT: ₹${t.remaining.toFixed(1)}L</span>
+      </div>
+      ${t.bought.length ? t.bought.map(b => {
+        const pp = players.find(x => x.name === b.name);
+        const hasRuns = pp && pp.runs !== undefined && pp.runs !== '—';
+        const hasWkts = pp && pp.wickets !== undefined && pp.wickets !== '—';
+        return `
+        <div class="result-player-row">
+          <div>
+            <div style="font-weight:600">${b.name}</div>
+            <div style="font-size:0.72rem;color:var(--muted)">${b.role}</div>
+            ${(hasRuns || hasWkts) ? `
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              ${hasRuns ? `<span style="font-size:0.65rem;font-family:'Orbitron',sans-serif;color:var(--gold);background:rgba(240,192,64,0.1);border:1px solid rgba(240,192,64,0.25);padding:2px 7px;border-radius:3px;">🏏 ${pp.runs} runs</span>` : ''}
+              ${hasWkts ? `<span style="font-size:0.65rem;font-family:'Orbitron',sans-serif;color:var(--red);background:rgba(255,60,90,0.1);border:1px solid rgba(255,60,90,0.25);padding:2px 7px;border-radius:3px;">🎯 ${pp.wickets} wkts</span>` : ''}
+            </div>` : ''}
+          </div>
+          <div class="price-cell">₹${b.price}L</div>
+        </div>
+      `}).join('') : '<div style="color:var(--muted);font-size:0.8rem;text-align:center;padding:10px 0">No players yet</div>'}
+    </div>
+  `).join('');
+}
+
+// ====== INIT (Firebase module calls render after data loads) ======
+</script>
+</body>
+</html>
