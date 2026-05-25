@@ -568,9 +568,11 @@
   setBar('connecting', 'CONNECTING TO FIREBASE...');
 
   get(playersRef).then(snap => {
-    window.players = snap.val() || [];
+    const val = snap.val();
+    window.players = val ? (Array.isArray(val) ? val : Object.values(val)) : [];
     get(teamsRef).then(snap2 => {
-      window.teams = snap2.val() || [];
+      const val2 = snap2.val();
+      window.teams = val2 ? (Array.isArray(val2) ? val2 : Object.values(val2)) : [];
       setBar('connected', 'LIVE — ALL CHANGES SYNC IN REAL TIME');
       window.renderPlayers();
       window.renderTeams();
@@ -578,7 +580,8 @@
 
       // Now subscribe for live updates from other users
       onValue(playersRef, s => {
-        window.players = s.val() || [];
+        const val = s.val();
+        window.players = val ? (Array.isArray(val) ? val : Object.values(val)) : [];
         window.renderPlayers();
         window.updateProgress();
         const v = document.querySelector('.view.active');
@@ -586,7 +589,8 @@
         if (v && v.id === 'view-results') window.renderResults();
       });
       onValue(teamsRef, s => {
-        window.teams = s.val() || [];
+        const val = s.val();
+        window.teams = val ? (Array.isArray(val) ? val : Object.values(val)) : [];
         window.renderTeams();
         window.renderAuction();
         const v = document.querySelector('.view.active');
